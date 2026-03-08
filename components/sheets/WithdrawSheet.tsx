@@ -1,6 +1,4 @@
-import { useState } from "react";
 import TransactionSheet from "@/components/TransactionSheet";
-import ConfirmationSheet from "@/components/ConfirmationSheet";
 import { Smartphone, ArrowRight, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -15,58 +13,27 @@ const withdrawOptions = [
     value: "mobile_wallet",
     description: "Cashout fiat to any mobile wallet",
     icon: Smartphone,
-    href: "/cashout/mobile-wallet",
+    href: "/app/cashout/mobile-wallet",
   },
   {
     label: "Bank Account",
     value: "bank_account",
     description: "Cashout to any bank account",
     icon: Building2,
-    href: "/cashout/bank",
+    href: "/app/cashout/bank",
   },
 ];
 
 const WithdrawSheet = ({ open, onClose }: Props) => {
-  const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState("");
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
-  const rate = 129.12;
-  const usdcAmount = amount ? (parseFloat(amount) / rate).toFixed(2) : "0.00";
-
-  const handleConfirm = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-    }, 2000);
-  };
-
   const handleClose = () => {
-    setPhone("");
-    setAmount("");
-    setShowConfirm(false);
-    setLoading(false);
-    setSuccess(false);
     onClose();
-  };
-
-  const handleConfirmClose = () => {
-    setShowConfirm(false);
-    setSuccess(false);
-    if (success) handleClose();
   };
 
   return (
     <>
-      <TransactionSheet
-        open={open && !showConfirm}
-        onClose={handleClose}
-        title="Cashout"
-      >
+      <TransactionSheet open={open} onClose={handleClose} title="Cashout">
         <ul className="space-y-4 mb-4 mt-2">
           {withdrawOptions.map((option) => (
             <li key={option.value}>
@@ -91,21 +58,6 @@ const WithdrawSheet = ({ open, onClose }: Props) => {
           ))}
         </ul>
       </TransactionSheet>
-
-      <ConfirmationSheet
-        open={showConfirm}
-        onClose={handleConfirmClose}
-        onConfirm={handleConfirm}
-        loading={loading}
-        success={success}
-        title="Confirm Withdrawal"
-        details={[
-          { label: "M-Pesa Number", value: phone },
-          { label: "Amount", value: `KES ${amount}` },
-          { label: "USDC Deducted", value: `${usdcAmount} USDC` },
-          { label: "Rate", value: `1 USDC = KES ${rate}` },
-        ]}
-      />
     </>
   );
 };
