@@ -39,6 +39,9 @@ export const metadata: Metadata = {
     description:
       "Offrail Finance enables individuals and businesses to instantly convert cryptocurrency into local currency and supports sending bulk payouts directly to bank accounts or mobile money.",
   },
+  other: {
+    "base:app_id": process.env.NEXT_PUBLIC_BASE_APP_ID!,
+  },
 };
 
 export default function RootLayout({
