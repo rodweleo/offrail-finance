@@ -2,19 +2,29 @@
 
 import { Home, Clock, QrCode, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
 
 const tabs = [
-  { icon: Home, label: "Home", path: "/" },
+  { icon: Home, label: "Home", path: "/app" },
   // { icon: Clock, label: "History", path: "/history" },
-  { icon: User, label: "Profile", path: "/profile" },
+  { icon: User, label: "Profile", path: "/app/profile" },
 ];
 
 const BottomNav = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { address, isConnected, isConnecting } = useAccount();
 
+  useEffect(() => {
+    if (!isConnecting && !isConnected && !address) {
+      router.push("/");
+    }
+  }, [address, isConnected, isConnecting]);
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40">
+    <div
+      className={`fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40 `}
+    >
       <div className="flex items-center justify-around max-w-md mx-auto py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.path;

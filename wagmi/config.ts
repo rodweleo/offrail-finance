@@ -34,7 +34,7 @@ export function getConfig() {
     chains: chains,
     connectors: [
       coinbaseWallet({
-        appName: "Payrail",
+        appName: "Offrail Finance",
         preference: "smartWalletOnly",
         version: "4",
       }),

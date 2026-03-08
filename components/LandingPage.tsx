@@ -1,19 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Shield, Zap, ArrowRight, Globe, Smartphone } from "lucide-react";
 import {
+  ConnectWallet,
   Wallet,
-  Shield,
-  Zap,
-  ArrowRight,
-  Globe,
-  Smartphone,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ConnectWallet } from "@coinbase/onchainkit/wallet";
+  WalletDropdownDisconnect,
+} from "@coinbase/onchainkit/wallet";
 
 interface LandingProps {
-  onEnter: () => void;
+  onEnter?: () => void;
 }
 
 const Landing = ({ onEnter }: LandingProps) => {
@@ -30,9 +25,6 @@ const Landing = ({ onEnter }: LandingProps) => {
         {/* Header */}
         <div className="pt-12 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-primary-foreground" />
-            </div>
             <span className="text-xl font-bold text-foreground tracking-tight">
               Offrail Finance
             </span>
@@ -84,7 +76,7 @@ const Landing = ({ onEnter }: LandingProps) => {
 
         {/* CTAs */}
         <div className="pb-10 space-y-3">
-          <ConnectWallet />
+          <ConnectWallet className="w-full bg-primary text-primary-foreground hover:bg-primary/90" />
           <p className="text-center text-[11px] text-muted-foreground pt-1">
             By continuing, you agree to our Terms & Privacy Policy
           </p>

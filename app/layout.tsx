@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/Providers";
 import { SafeArea } from "@coinbase/onchainkit/minikit";
 import "@coinbase/onchainkit/styles.css";
-import BottomNav from "@/components/BottomNav";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
     description:
       "Offrail Finance enables individuals and businesses to instantly convert cryptocurrency into local currency and supports sending bulk payouts directly to bank accounts or mobile money.",
     type: "website",
-    url: "https://offrail.finance",
+    url: "https://offrail-finance.vercel.app",
     siteName: "Offrail Finance",
   },
   twitter: {
@@ -55,7 +54,6 @@ export default function RootLayout({
         <Providers>
           <SafeArea>
             {children}
-            <BottomNav />
             <Toaster />
           </SafeArea>
         </Providers>

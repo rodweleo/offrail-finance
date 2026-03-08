@@ -7,6 +7,7 @@ import { config } from "./Providers";
 import { shortenAddress } from "@/utils";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 import { useTokenExchangeRate } from "@/hooks/useTokenExchangeRate";
+import { usePaycrestExchangeRate } from "@/hooks/use-paycrest";
 
 const BalanceCard = () => {
   const [visible, setVisible] = useState(true);
@@ -21,7 +22,10 @@ const BalanceCard = () => {
     data: exchangeRate,
     isLoading: isLoadingExchangeRate,
     error: exchangeRateError,
-  } = useTokenExchangeRate(usdcBalance);
+  } = usePaycrestExchangeRate({
+    token: "USDC",
+    currency: "KES",
+  });
 
   const copyWallet = () => {
     navigator.clipboard.writeText(address!);
@@ -46,8 +50,8 @@ const BalanceCard = () => {
         </button>
       </div>
       <h2 className="text-3xl font-bold tracking-tight mb-1">
-        {visible && !isLoadingExchangeRate && !exchangeRateError
-          ? `KES ${exchangeRate?.toFixed(2)}`
+        {visible && !isLoadingExchangeRate && !exchangeRateError && exchangeRate
+          ? `KES ${(exchangeRate * usdcBalance).toFixed(2)}`
           : "KES ••••••"}
       </h2>
       <p className="text-sm opacity-70 mb-3">

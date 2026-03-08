@@ -17,10 +17,18 @@ import { Wallet, WalletDropdownDisconnect } from "@coinbase/onchainkit/wallet";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils";
 const menuItems = [
-  { icon: User, label: "Account Details", path: "/profile/account-details" },
-  { icon: Shield, label: "Security & PIN", path: "/profile/security" },
-  { icon: Bell, label: "Notifications", path: "/profile/notifications" },
-  { icon: HelpCircle, label: "Help & Support", path: "/profile/help-support" },
+  {
+    icon: User,
+    label: "Account Details",
+    path: "/app/profile/account-details",
+  },
+  { icon: Shield, label: "Security & PIN", path: "/app/profile/security" },
+  { icon: Bell, label: "Notifications", path: "/app/profile/notifications" },
+  {
+    icon: HelpCircle,
+    label: "Help & Support",
+    path: "/app/profile/help-support",
+  },
 ];
 
 const Profile = () => {
