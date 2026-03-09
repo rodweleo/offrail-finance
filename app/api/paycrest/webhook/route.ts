@@ -4,6 +4,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    console.log(body);
+
     const signature = request.headers.get("X-Paycrest-Signature");
     if (!signature) {
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });

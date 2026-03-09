@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { ArrowLeft, User, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +14,17 @@ import BulkRecipientList, {
 import ConfirmationSheet from "@/components/ConfirmationSheet";
 import SearchableSelect from "@/components/SearchableSelect";
 import PageHeader from "@/components/PageHeader";
+import { useAccount, useChainId } from "wagmi";
+import axios from "axios";
+import { toast } from "sonner";
+import { shortenAddress } from "@/utils";
+import { ERC20_ABI } from "@/utils/contracts";
+import {
+  Transaction,
+  TransactionButton,
+} from "@coinbase/onchainkit/transaction";
+import { encodeFunctionData, parseUnits } from "viem";
+import { SUPPORTED_TOKENS } from "@/utils/tokens";
 
 type SendType = "single" | "bulk";
 
@@ -26,6 +37,11 @@ const makeEntry = (): BulkEntry => ({
 
 const CashOutMobile = () => {
   const router = useRouter();
+  const { address } = useAccount();
+  const chainId = useChainId();
+  const onSubmitRef = useRef<(() => void) | null>(null);
+
+  const [calls, setCalls] = useState<any[]>([]);
   const [sendType, setSendType] = useState<SendType>("single");
 
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
@@ -71,7 +87,7 @@ const CashOutMobile = () => {
   const institutionName =
     providerOptions.find((o) => o.value === selectedInstitution)?.label ?? "";
   const currency = selectedCurrency ?? "KES";
-  const usdcAmount = amount ? (parseFloat(amount) / rate).toFixed(2) : "0.00";
+  const usdcAmount = amount ? (parseFloat(amount) / rate!).toFixed(2) : "0.00";
 
   const validBulkEntries = bulkEntries.filter((e) => e.recipient && e.amount);
   const bulkTotal = validBulkEntries.reduce(
@@ -91,12 +107,75 @@ const CashOutMobile = () => {
     setSelectedInstitution(null);
   };
 
-  const handleConfirm = () => {
-    setLoading(true);
-    setTimeout(() => {
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+
+      const data = {
+        type: sendType,
+        amount: sendType === "single" ? usdcAmount : bulkTotal.toString(),
+        token: "USDC",
+        network: "base",
+        receipient: {
+          institution: selectedInstitution,
+          accountIdentifier: sendType === "single" ? phone : "",
+          accountName: sendType === "single" ? phone : "",
+          memo:
+            sendType === "single"
+              ? `Cashout to ${phone} via Offrail Finance`
+              : "Bulk cashout via Offrail Finance",
+          currency,
+        },
+        returnAddress: address,
+      };
+
+      const orderResponse = await axios.post(
+        "/api/cashout/mobile-wallet",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (orderResponse.status !== 201) {
+        toast.error("Failed to create cashout order. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      const orderDtls = orderResponse.data;
+      const totalAmount =
+        Number(orderDtls.amount) +
+        Number(orderDtls.senderFee) +
+        Number(orderDtls.transactionFee);
+
+      setCalls([
+        {
+          to: (SUPPORTED_TOKENS.find((token) => token.chainId === chainId)
+            ?.contractAddress ||
+            SUPPORTED_TOKENS[0].contractAddress) as `0x${string}`,
+          data: encodeFunctionData({
+            abi: ERC20_ABI,
+            functionName: "transfer",
+            args: [
+              orderDtls.receiveAddress as `0x${string}`,
+              parseUnits(totalAmount.toString(), 6),
+            ],
+          }),
+        },
+      ]);
+
+      onSubmitRef.current?.();
+    } catch (e) {
+      console.error("Cashout error:", e);
+      // toast.error(
+      //   e.response?.data?.error ||
+      //     "An error occurred during cashout. Please try again.",
+      // );
       setLoading(false);
-      setSuccess(true);
-    }, 2000);
+    }
   };
 
   const handleConfirmClose = () => {
@@ -119,9 +198,9 @@ const CashOutMobile = () => {
         },
         {
           label: "USDC Deducted",
-          value: `${(bulkTotal / rate).toFixed(2)} USDC`,
+          value: `${(bulkTotal / rate!).toFixed(2)} USDC`,
         },
-        { label: "Rate", value: `1 USDC = ${currency} ${rate}` },
+        { label: "Rate", value: `1 USDC = ${currency} ${rate!}` },
       ];
     }
     return [
@@ -225,7 +304,7 @@ const CashOutMobile = () => {
                   }
                   className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring card-shadow text-2xl font-bold"
                 />
-                {amount && rate > 0 && (
+                {amount && rate! > 0 && (
                   <p className="text-xs text-muted-foreground mt-1.5">
                     ≈ {usdcAmount} USDC @ 1 USDC = {currency} {rate}
                   </p>
@@ -308,6 +387,40 @@ const CashOutMobile = () => {
         title="Confirm Mobile Transfer"
         details={getConfirmDetails()}
       />
+
+      <Transaction
+        chainId={chainId}
+        calls={address ? calls : []}
+        onStatus={(status) => {
+          switch (status.statusName) {
+            case "success":
+              toast.success(`Transaction was successful!`);
+              setLoading(false);
+              setSuccess(true);
+              break;
+            case "transactionPending":
+              setLoading(true);
+              break;
+            case "error":
+              toast.error(
+                `${status.statusData.message}` +
+                  ` ${JSON.parse(status.statusData.error).cause.shortMessage}`,
+              );
+              setLoading(false);
+              setSuccess(false);
+              break;
+          }
+        }}
+      >
+        <TransactionButton
+          className="hidden"
+          render={({ onSubmit }) => {
+            // Capture onSubmit so we can call it programmatically
+            onSubmitRef.current = onSubmit;
+            return <></>; // renders nothing
+          }}
+        />
+      </Transaction>
     </div>
   );
 };

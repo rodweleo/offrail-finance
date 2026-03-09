@@ -1,31 +1,19 @@
 import { http, cookieStorage, createConfig, createStorage } from "wagmi";
-import {
-  arbitrum,
-  arbitrumSepolia,
-  base,
-  baseSepolia,
-  mainnet,
-  polygon,
-} from "viem/chains";
+import { base, baseSepolia, mainnet } from "viem/chains";
 import { coinbaseWallet, metaMask } from "wagmi/connectors";
 
 const IS_TESTNET = process.env.NEXT_PUBLIC_ENV === "development";
 
-const chains:
-  | [typeof baseSepolia, typeof arbitrumSepolia]
-  | [typeof base, typeof arbitrum, typeof polygon, typeof mainnet] = IS_TESTNET
-  ? [baseSepolia, arbitrumSepolia]
-  : [base, arbitrum, polygon, mainnet];
+const chains: [typeof baseSepolia] | [typeof base, typeof mainnet] = IS_TESTNET
+  ? [baseSepolia]
+  : [base, mainnet];
 
 const transports: Record<number, any> = IS_TESTNET
   ? {
       [baseSepolia.id]: http(),
-      [arbitrumSepolia.id]: http(),
     }
   : {
       [base.id]: http(),
-      [arbitrum.id]: http(),
-      [polygon.id]: http(),
       [mainnet.id]: http(),
     };
 

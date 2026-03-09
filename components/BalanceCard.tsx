@@ -1,12 +1,10 @@
 import { Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useState } from "react";
-import { useUser } from "@/contexts/UserContext";
 import { toast } from "sonner";
 import { useAccount, useBalance } from "wagmi";
 import { config } from "./Providers";
 import { shortenAddress } from "@/utils";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
-import { useTokenExchangeRate } from "@/hooks/useTokenExchangeRate";
 import { usePaycrestExchangeRate } from "@/hooks/use-paycrest";
 
 const BalanceCard = () => {

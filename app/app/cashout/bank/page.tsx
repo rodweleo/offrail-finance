@@ -14,6 +14,9 @@ import BulkRecipientList, {
 import ConfirmationSheet from "@/components/ConfirmationSheet";
 import SearchableSelect from "@/components/SearchableSelect";
 import PageHeader from "@/components/PageHeader";
+import axios from "axios";
+import { toast } from "sonner";
+import { useAccount } from "wagmi";
 
 type SendType = "single" | "bulk";
 
@@ -27,6 +30,7 @@ const makeEntry = (): BulkEntry => ({
 
 const CashOutBank = () => {
   const router = useRouter();
+  const { address } = useAccount();
   const [sendType, setSendType] = useState<SendType>("single");
 
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
@@ -94,12 +98,53 @@ const CashOutBank = () => {
     setSelectedInstitution(null);
   };
 
-  const handleConfirm = () => {
-    setLoading(true);
-    setTimeout(() => {
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+
+      const data = {
+        type: sendType,
+        amount: sendType === "single" ? usdcAmount : bulkTotal.toString(),
+        token: "USDC",
+        network: "base",
+        receipient: {
+          institution: selectedInstitution,
+          accountIdentifier: sendType === "single" ? accountNumber : "",
+          accountName: sendType === "single" ? accountName : "",
+          memo:
+            sendType === "single"
+              ? `Cashout to ${accountNumber} via Offrail Finance`
+              : "Bulk cashout via Offrail Finance",
+          currency,
+        },
+        returnAddress: address,
+      };
+
+      const orderResponse = await axios.post("/api/cashout/bank", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (orderResponse.status !== 201) {
+        toast.error("Failed to create cashout order. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Order response:", orderResponse.data);
       setLoading(false);
-      setSuccess(true);
-    }, 2000);
+      // setTimeout(() => {
+      //   setSuccess(true);
+      // }, 2000);
+    } catch (e) {
+      console.error("Cashout error:", e);
+      // toast.error(
+      //   e.response?.data?.error ||
+      //     "An error occurred during cashout. Please try again.",
+      // );
+      setLoading(false);
+    }
   };
 
   const handleConfirmClose = () => {

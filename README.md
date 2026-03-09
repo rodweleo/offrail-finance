@@ -1,8 +1,8 @@
-# Payrail
+# Offrail Finance
 
 ## Overview
 
-Payrail is a blockchain-based mobile/web application that enables users to perform various financial transactions using stablecoins (USDC and USDT) across multiple blockchain networks. The app facilitates sending and receiving money, buying mobile airtime, paying bills, and other payment services, bridging traditional financial needs with decentralized technology. It integrates with Paycrest for cross-border and telecom payments, providing a seamless experience for users in regions like Kenya.
+Offrail Finance is a blockchain-based mobile/web application that enables users to perform various financial transactions using stablecoins (USDC and USDT) across multiple blockchain networks. The app facilitates sending and receiving money, buying mobile airtime, paying bills, and other payment services, bridging traditional financial needs with decentralized technology. It integrates with Paycrest for cross-border and telecom payments, providing a seamless experience for users in regions like Kenya.
 
 ## Features
 
@@ -144,7 +144,7 @@ Blockchain interactions for wallet connections and balances are handled via Wagm
 
 ## Contributing
 
-We welcome contributions to Payrail! To contribute:
+We welcome contributions to Offrail Finance! To contribute:
 
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/your-feature`.
