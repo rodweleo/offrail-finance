@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       currency = "KES",
       network = "base",
       type,
-      orginalAmount,
+      originalAmount,
     } = body;
 
     // Validate inputs
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       returnAddress,
       amountInToken: amount,
       amountInFiat: (rate * amount).toFixed(2),
-      amount: orginalAmount,
+      amount: originalAmount,
       token,
       network,
       fromAddress: fromAddress,
