@@ -28,7 +28,11 @@ const ConfirmationSheet = ({
   success,
 }: ConfirmationSheetProps) => {
   return (
-    <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
+    <Drawer
+      open={open}
+      onOpenChange={(o) => !o && !loading && onClose()}
+      dismissible={!loading}
+    >
       <DrawerContent className="rounded-t-3xl border-0 bg-card max-w-md mx-auto">
         <DrawerHeader className="px-6 pt-2 pb-0">
           <DrawerTitle className="sr-only">{title}</DrawerTitle>

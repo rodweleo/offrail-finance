@@ -132,7 +132,7 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
                     <span
                       className={`text-xs font-medium text-foreground ${
                         d.label === "Status"
-                          ? transaction.status === "completed"
+                          ? transaction.status === "settled"
                             ? "text-primary"
                             : transaction.status === "pending"
                               ? "text-warning"
@@ -180,7 +180,7 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
               if (navigator.share) {
                 navigator.share({
                   title: "Transaction Receipt",
-                  text: `${typeLabels[transaction.type]}: KES ${transaction.amount} — ${transaction.date}`,
+                  text: `${typeLabels[transaction.type]}: KES ${transaction.amount} — ${new Date(transaction.updatedAt).toLocaleString()}`,
                 });
               } else {
                 copyTxId();

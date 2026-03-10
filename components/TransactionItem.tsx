@@ -21,7 +21,7 @@ export interface Transaction {
   description: string;
   amount: string;
   date: string;
-  status: "completed" | "pending" | "failed";
+  status: "settled" | "pending" | "failed" | "expired" | "validated";
 }
 
 const typeIcons: Record<Transaction["type"], React.ElementType> = {
@@ -82,9 +82,10 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
         </p>
         <p
           className={`text-xs capitalize ${
-            transaction.status === "completed"
+            transaction.status === "settled"
               ? "text-primary"
-              : transaction.status === "pending"
+              : transaction.status === "pending" ||
+                  transaction.status === "validated"
                 ? "text-warning"
                 : "text-destructive"
           }`}

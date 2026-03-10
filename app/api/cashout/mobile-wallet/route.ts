@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       receipientAccountNumber: receipient.accountIdentifier,
       receipientMemo: receipient.memo || null,
       receipientAccountName: receipient.accountName || null,
-      receiverAddress: order.receiverAddress,
+      receiverAddress: order.receiveAddress,
       description: receipient.memo || null,
       validUntil: new Date(order.validUntil),
       senderFee: order.senderFee,
