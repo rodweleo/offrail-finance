@@ -41,7 +41,7 @@ export const Providers = ({ children }: { children: ReactNode }) => {
                   preference: "all", // 'all' | 'smartWalletOnly' | 'eoaOnly'
                 },
                 paymaster:
-                  process.env.NEXT_PUBLIC_ENV === "development"
+                  process.env.NODE_ENV === "development"
                     ? process.env.NEXT_TESTNET_PAYMASTER_URL
                     : process.env.NEXT_MAINNET_PAYMASTER_URL,
               }}

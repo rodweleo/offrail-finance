@@ -2,7 +2,7 @@ import { http, cookieStorage, createConfig, createStorage } from "wagmi";
 import { base, baseSepolia, mainnet } from "viem/chains";
 import { coinbaseWallet, metaMask } from "wagmi/connectors";
 
-const IS_TESTNET = process.env.NEXT_PUBLIC_ENV === "development";
+const IS_TESTNET = process.env.NODE_ENV === "development";
 
 const chains: [typeof baseSepolia] | [typeof base, typeof mainnet] = IS_TESTNET
   ? [baseSepolia]
