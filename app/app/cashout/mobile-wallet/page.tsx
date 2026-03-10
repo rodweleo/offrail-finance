@@ -128,6 +128,7 @@ const CashOutMobile = () => {
         },
         returnAddress: address,
         fromAddress: address,
+        originalAmount: amount,
       };
 
       const orderResponse = await axios.post(

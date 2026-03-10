@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
       receipient,
       currency = "KES",
       network = "base",
+      type,
+      orginalAmount,
     } = body;
 
     // Validate inputs
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
       returnAddress,
       amountInToken: amount,
       amountInFiat: (rate * amount).toFixed(2),
-      amount: (rate * amount).toFixed(2),
+      amount: orginalAmount,
       token,
       network,
       fromAddress: fromAddress,
@@ -86,6 +88,7 @@ export async function POST(req: NextRequest) {
       status: "pending",
       createdAt: new Date(),
       updatedAt: new Date(),
+      type,
     });
 
     // Return the receive address for the user to send USDC to

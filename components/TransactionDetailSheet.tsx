@@ -66,17 +66,26 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // amountInToken
+
   const details = [
     { label: "Type", value: typeLabels[transaction.type] },
     {
-      label: "Amount",
+      label: `Amount (${transaction.currency})`,
       value: `${isDebit ? "-" : "+"}${transaction.currency} ${transaction.amount}`,
+    },
+    {
+      label: `Amount (${transaction.token})`,
+      value: `${isDebit ? "-" : "+"} ${transaction.amountInToken} ${transaction.token} `,
     },
     { label: "Description", value: transaction.description },
     { label: "Date", value: new Date(transaction.updatedAt).toLocaleString() },
     { label: "Status", value: transaction.status },
     { label: "Transaction ID", value: txId },
-    { label: "Transaction Hash", value: transaction.txHash },
+    {
+      label: "Transaction Hash",
+      value: transaction.txHash ? transaction.txHash : null,
+    },
   ];
 
   return (
@@ -131,7 +140,7 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
                           : ""
                       } capitalize`}
                     >
-                      {isTransactionHash ? (
+                      {isTransactionHash && transaction.txHash ? (
                         <Button
                           variant="outline"
                           className="text-blue-500 hover:text-blue-600"

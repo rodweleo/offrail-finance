@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowUpRight,
   ArrowDownLeft,
@@ -69,14 +71,7 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
           {transaction.receipientMemo}
         </p>
         <p className="text-xs text-muted-foreground">
-          {new Date(transaction.updatedAt).toLocaleString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {new Date(transaction.updatedAt).toLocaleString()}
         </p>
       </div>
       <div className="text-right">
