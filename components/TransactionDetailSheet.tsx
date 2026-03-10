@@ -19,6 +19,9 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
+import Link from "next/link";
+import { shortenAddress } from "@/utils";
+import { Button } from "./ui/button";
 
 interface Props {
   transaction: Transaction | null;
@@ -32,7 +35,7 @@ const typeIcons: Record<Transaction["type"], React.ElementType> = {
   paybill: Receipt,
   airtime: Phone,
   bundles: Wifi,
-  withdraw: ArrowUpRight,
+  cashout: ArrowUpRight,
   deposit: ArrowDownLeft,
 };
 
@@ -42,7 +45,7 @@ const typeLabels: Record<Transaction["type"], string> = {
   paybill: "Bill Payment",
   airtime: "Airtime Purchase",
   bundles: "Data Bundle",
-  withdraw: "Withdrawal",
+  cashout: "Cash out",
   deposit: "Deposit",
 };
 
@@ -52,14 +55,10 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
   if (!transaction) return null;
 
   const Icon = typeIcons[transaction.type];
-  const isDebit = [
-    "send",
-    "paybill",
-    "airtime",
-    "bundles",
-    "withdraw",
-  ].includes(transaction.type);
-  const txId = `TXN${transaction.id.padStart(8, "0")}${Date.now().toString(36).toUpperCase()}`;
+  const isDebit = ["send", "paybill", "airtime", "bundles", "cashout"].includes(
+    transaction.type,
+  );
+  const txId = transaction._id;
 
   const copyTxId = () => {
     navigator.clipboard.writeText(txId);
@@ -71,17 +70,18 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
     { label: "Type", value: typeLabels[transaction.type] },
     {
       label: "Amount",
-      value: `${isDebit ? "-" : "+"}KES ${transaction.amount}`,
+      value: `${isDebit ? "-" : "+"}${transaction.currency} ${transaction.amount}`,
     },
     { label: "Description", value: transaction.description },
-    { label: "Date", value: transaction.date },
+    { label: "Date", value: new Date(transaction.updatedAt).toLocaleString() },
     { label: "Status", value: transaction.status },
     { label: "Transaction ID", value: txId },
+    { label: "Transaction Hash", value: transaction.txHash },
   ];
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="rounded-t-3xl border-0 bg-card">
+      <DrawerContent className="rounded-t-3xl border-0 bg-card max-w-md mx-auto">
         <DrawerHeader className="px-6 pt-2 pb-0">
           <DrawerTitle className="sr-only">Transaction Details</DrawerTitle>
           <DrawerDescription className="sr-only">
@@ -89,7 +89,7 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-6 pb-6 safe-bottom">
+        <div className="px-6 pb-6 safe-bottom mb-4">
           <div className="flex flex-col items-center mb-5">
             <div
               className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 ${
@@ -103,7 +103,8 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
             <p
               className={`text-2xl font-bold ${isDebit ? "text-foreground" : "text-primary"}`}
             >
-              {isDebit ? "-" : "+"}KES {transaction.amount}
+              {isDebit ? "-" : "+"}
+              {transaction.currency} {transaction.amount}
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">
               {typeLabels[transaction.type]}
@@ -111,38 +112,58 @@ const TransactionDetailSheet = ({ transaction, open, onClose }: Props) => {
           </div>
 
           <div className="bg-secondary/50 rounded-2xl p-4 space-y-3 mb-4">
-            {details.map((d, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{d.label}</span>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`text-xs font-medium text-foreground ${
-                      d.label === "Status"
-                        ? transaction.status === "completed"
-                          ? "text-primary"
-                          : transaction.status === "pending"
-                            ? "text-warning"
-                            : "text-destructive"
-                        : ""
-                    } capitalize`}
-                  >
-                    {d.value}
+            {details.map((d, i) => {
+              const isTransactionHash = d.label === "Transaction Hash";
+              return (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    {d.label}
                   </span>
-                  {d.label === "Transaction ID" && (
-                    <button
-                      onClick={copyTxId}
-                      className="p-1 rounded-lg hover:bg-secondary transition-colors"
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-xs font-medium text-foreground ${
+                        d.label === "Status"
+                          ? transaction.status === "completed"
+                            ? "text-primary"
+                            : transaction.status === "pending"
+                              ? "text-warning"
+                              : "text-destructive"
+                          : ""
+                      } capitalize`}
                     >
-                      {copied ? (
-                        <Check className="w-3 h-3 text-primary" />
+                      {isTransactionHash ? (
+                        <Button
+                          variant="outline"
+                          className="text-blue-500 hover:text-blue-600"
+                        >
+                          <Link
+                            href={`https://basescan.org/tx/${transaction.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {shortenAddress(transaction.txHash)}
+                          </Link>
+                        </Button>
                       ) : (
-                        <Copy className="w-3 h-3 text-muted-foreground" />
+                        d.value
                       )}
-                    </button>
-                  )}
+                    </span>
+                    {d.label === "Transaction ID" && (
+                      <button
+                        onClick={copyTxId}
+                        className="p-1 rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        {copied ? (
+                          <Check className="w-3 h-3 text-primary" />
+                        ) : (
+                          <Copy className="w-3 h-3 text-muted-foreground" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <button

@@ -1,8 +1,11 @@
+import { getPaycrestOrdersCollection } from "@/utils/mongodb";
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+    const body = JSON.parse(rawBody);
 
     console.log(body);
 
@@ -13,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (
       !verifyPaycrestSignature(
-        body,
+        rawBody,
         signature,
         process.env.NEXT_PAYCREST_API_SECRET!,
       )
@@ -24,14 +27,17 @@ export async function POST(request: NextRequest) {
     const { event, data } = body;
 
     switch (event) {
-      case "order.created":
-        await handleOrderCreated(data);
+      case "payment_order.pending":
+        await handleOrderPending(data);
         break;
-      case "order.completed":
-        await handleOrderCompleted(data);
+      case "payment_order.validated":
+        await handleOrderValidated(data);
         break;
-      case "order.failed":
-        await handleOrderFailed(data);
+      case "payment_order.settled":
+        await handleOrderSettled(data);
+        break;
+      case "payment_order.expired":
+        await handleOrderExpired(data);
         break;
       default:
         console.log(`Unknown event: ${event}`);
@@ -40,36 +46,86 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Webhook processing error:", error);
-    return NextResponse.json({ error }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
 
-async function handleOrderCreated(data: any) {
-  // TODO: Process order creation
-  console.log("Order created:", data);
+async function handleOrderPending(data: any) {
+  const ordersCollection = getPaycrestOrdersCollection();
+  await ordersCollection.updateOne(
+    { reference: data.reference },
+    {
+      $set: {
+        status: "pending",
+        percentSettled: data.percentSettled,
+        amountPaid: data.amountPaid,
+        gatewayId: data.gatewayId,
+        senderId: data.senderId,
+        txHash: data.txHash,
+        updatedAt: new Date(),
+      },
+    },
+  );
+  console.log("Order pending:", data.reference);
 }
 
-async function handleOrderCompleted(data: any) {
-  // TODO: Process order completion
-  console.log("Order completed:", data);
+async function handleOrderValidated(data: any) {
+  const ordersCollection = getPaycrestOrdersCollection();
+  await ordersCollection.updateOne(
+    { reference: data.reference },
+    {
+      $set: {
+        status: "validated",
+        percentSettled: data.percentSettled,
+        amountPaid: data.amountPaid,
+        gatewayId: data.gatewayId,
+        senderId: data.senderId,
+        txHash: data.txHash,
+        updatedAt: new Date(),
+      },
+    },
+  );
+  console.log("Order validated:", data.reference);
 }
 
-async function handleOrderFailed(data: any) {
-  // TODO: Process order failure
-  console.log("Order failed:", data);
+async function handleOrderSettled(data: any) {
+  const ordersCollection = getPaycrestOrdersCollection();
+  await ordersCollection.updateOne(
+    { reference: data.reference },
+    {
+      $set: {
+        status: "settled",
+        percentSettled: data.percentSettled,
+        amountPaid: data.amountPaid,
+        gatewayId: data.gatewayId,
+        senderId: data.senderId,
+        txHash: data.txHash,
+        updatedAt: new Date(),
+      },
+    },
+  );
+  console.log("Order settled:", data.reference);
+}
+
+async function handleOrderExpired(data: any) {
+  const ordersCollection = getPaycrestOrdersCollection();
+  await ordersCollection.updateOne(
+    { reference: data.reference },
+    { $set: { status: "expired", updatedAt: new Date() } },
+  );
+  console.log("Order expired:", data.reference);
 }
 
 function verifyPaycrestSignature(
-  requestBody: any,
+  rawBody: string,
   signatureHeader: string,
   secretKey: string,
-) {
-  const calculatedSignature = calculateHmacSignature(requestBody, secretKey);
+): boolean {
+  const calculatedSignature = calculateHmacSignature(rawBody, secretKey);
   return signatureHeader === calculatedSignature;
 }
 
-function calculateHmacSignature(data: any, secretKey: string) {
-  const crypto = require("crypto");
+function calculateHmacSignature(data: string, secretKey: string): string {
   const key = Buffer.from(secretKey);
   const hash = crypto.createHmac("sha256", key);
   hash.update(data);

@@ -1,3 +1,4 @@
+import { getPaycrestOrdersCollection } from "@/utils/mongodb";
 import {
   getPaycrestSupportedCurrencies,
   getPaycrestSupportedInstitutionsByCurrency,
@@ -18,7 +19,7 @@ export const usePaycrestSupportedInstitutionsByCurrency = (
           await getPaycrestSupportedInstitutionsByCurrency(currency);
         return response;
       } catch (error) {
-        console.error("Error fetching supported institutions:", error);
+        // console.error("Error fetching supported institutions:", error);
         return [];
       }
     },
@@ -62,5 +63,27 @@ export const usePaycrestExchangeRate = ({
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useUserPaycrestOrders = ({ address }: { address: string }) => {
+  return useQuery({
+    queryKey: ["paycrestOrders", address],
+    queryFn: async () => {
+      if (!address) return [];
+
+      try {
+        const res = await axios.get(`/api/orders`, {
+          params: { address },
+        });
+
+        return res.data.orders;
+      } catch (e) {
+        // console.error("Error fetching user orders:", e);
+        return [];
+      }
+    },
+    staleTime: 60 * 1000, // 1 minute
+    refetchInterval: 60 * 1000, // 1 minute
   });
 };

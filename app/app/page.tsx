@@ -34,6 +34,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils";
+import { useUserPaycrestOrders } from "@/hooks/use-paycrest";
+import { RecentTransactions } from "@/components/RecentTransactions";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -55,18 +57,8 @@ type SheetType =
 
 const Home = () => {
   const { address } = useAccount();
-  const { profile, transactions } = useUser();
   const { theme, setTheme } = useTheme();
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
-  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  const recentTransactions = transactions.slice(0, 4);
 
   const actions = [
     {
@@ -126,7 +118,7 @@ const Home = () => {
       <div className="max-w-md mx-auto px-4 pt-6 ">
         <div className="flex items-center justify-between mb-5 top-0 sticky z-50 bg-background/80 backdrop-blur-sm py-3">
           <div>
-            <p className="text-sm text-muted-foreground">{getGreeting()} 👋</p>
+            <p className="text-sm text-muted-foreground">{getGreeting()}</p>
             <h1 className="text-xl font-bold text-foreground">
               {address ? shortenAddress(address) : ""}
             </h1>
@@ -144,63 +136,22 @@ const Home = () => {
         </div>
 
         <div className="mb-6">
-          {loading ? (
-            <Skeleton className="h-[140px] rounded-2xl" />
-          ) : (
-            <BalanceCard />
-          )}
+          <BalanceCard />
         </div>
 
         <div className={`grid grid-cols-${actions.length / 2} gap-3 mb-6`}>
-          {loading
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <Skeleton key={i} className="h-[100px] rounded-2xl" />
-              ))
-            : actions.map((action) => (
-                <ActionButton
-                  key={action.sheet}
-                  icon={action.icon}
-                  label={action.label}
-                  onClick={() => setActiveSheet(action.sheet)}
-                  color={action.color}
-                />
-              ))}
+          {actions.map((action) => (
+            <ActionButton
+              key={action.sheet}
+              icon={action.icon}
+              label={action.label}
+              onClick={() => setActiveSheet(action.sheet)}
+              color={action.color}
+            />
+          ))}
         </div>
 
-        <div className="bg-card rounded-2xl p-4 card-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Recent Transactions
-            </h3>
-            <Link href="/history" className="text-xs font-medium text-primary">
-              See all
-            </Link>
-          </div>
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <Skeleton className="w-10 h-10 rounded-xl" />
-                  <div className="flex-1 space-y-1.5">
-                    <Skeleton className="h-3.5 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                  <Skeleton className="h-4 w-16" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {recentTransactions.map((tx) => (
-                <TransactionItem
-                  key={tx.id}
-                  transaction={tx}
-                  onClick={() => setSelectedTx(tx)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <RecentTransactions />
       </div>
 
       <SendMoneySheet open={activeSheet === "send"} onClose={close} />
@@ -211,12 +162,6 @@ const Home = () => {
       <WithdrawSheet open={activeSheet === "cashout"} onClose={close} />
       <ReceiveMoneySheet open={activeSheet === "receive"} onClose={close} />
       <DepositSheet open={activeSheet === "deposit"} onClose={close} />
-
-      <TransactionDetailSheet
-        transaction={selectedTx}
-        open={!!selectedTx}
-        onClose={() => setSelectedTx(null)}
-      />
     </div>
   );
 };
