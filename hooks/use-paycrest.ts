@@ -84,6 +84,6 @@ export const useUserPaycrestOrders = ({ address }: { address: string }) => {
       }
     },
     staleTime: 60 * 1000, // 1 minute
-    refetchInterval: 60 * 1000, // 1 minute
+    refetchInterval: 30 * 1000,
   });
 };

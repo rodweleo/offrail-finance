@@ -112,7 +112,7 @@ const CashOutMobile = () => {
       setLoading(true);
 
       const data = {
-        type: sendType,
+        type: "cashout",
         amount: sendType === "single" ? usdcAmount : bulkTotal.toString(),
         token: "USDC",
         network: "base",
@@ -122,11 +122,12 @@ const CashOutMobile = () => {
           accountName: sendType === "single" ? phone : "",
           memo:
             sendType === "single"
-              ? `Cashout to ${phone} via Offrail Finance`
+              ? `Cashout to ${phone}`
               : "Bulk cashout via Offrail Finance",
           currency,
         },
         returnAddress: address,
+        fromAddress: address,
       };
 
       const orderResponse = await axios.post(
