@@ -51,10 +51,12 @@ const CashOutMobile = () => {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [bulkEntries, setBulkEntries] = useState<BulkEntry[]>([makeEntry()]);
-
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [transactionReference, setTransactionReference] = useState<
+    string | null
+  >(null);
 
   const { data: supportedCurrencies, isLoading: loadingCurrencies } =
     usePaycrestSupportedCurrencies();
@@ -146,8 +148,9 @@ const CashOutMobile = () => {
         setLoading(false);
         return;
       }
-
       const orderDtls = orderResponse.data;
+      setTransactionReference(orderDtls.reference);
+
       const totalAmount =
         Number(orderDtls.amount) +
         Number(orderDtls.senderFee) +
@@ -388,6 +391,7 @@ const CashOutMobile = () => {
         success={success}
         title="Confirm Mobile Transfer"
         details={getConfirmDetails()}
+        transactionReference={transactionReference}
       />
 
       <Transaction

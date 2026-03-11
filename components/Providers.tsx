@@ -40,6 +40,8 @@ export const Providers = ({ children }: { children: ReactNode }) => {
                 appearance: {
                   mode: "auto", // 'light' | 'dark' | 'auto'
                   name: "Offrail Finance",
+                  theme: "hacker",
+                  logo: "https://offrail-finance.vercel.app/icon.png",
                 },
                 wallet: {
                   display: "modal", // 'modal' | 'drawer'

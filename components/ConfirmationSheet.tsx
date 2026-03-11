@@ -29,7 +29,7 @@ interface ConfirmationSheetProps {
   details: { label: string; value: string }[];
   loading?: boolean;
   success?: boolean;
-  transactionReference?: string; // needed to cancel in DB
+  transactionReference?: string | null;
 }
 
 const ConfirmationSheet = ({

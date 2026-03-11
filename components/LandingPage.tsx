@@ -6,6 +6,8 @@ import {
   Wallet,
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
+import { Badge } from "./ui/badge";
+import Image from "next/image";
 
 interface LandingProps {
   onEnter?: () => void;
@@ -23,21 +25,29 @@ const Landing = ({ onEnter }: LandingProps) => {
 
       <div className="relative z-10 flex flex-col min-h-screen max-w-md mx-auto px-6">
         {/* Header */}
-        <div className="pt-12 pb-4">
+        <header className="pt-12 pb-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="text-xl font-bold text-foreground tracking-tight">
               Offrail Finance
             </span>
           </div>
-        </div>
+          <Image
+            src="/icon.png"
+            alt="Offrail Finance Logo"
+            width={46}
+            height={46}
+            className="rounded-md"
+          />
+        </header>
 
         {/* Hero */}
         <div className="flex-1 flex flex-col justify-center py-8">
           <div className="space-y-5 mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+            <Badge className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20">
               <Globe className="w-3.5 h-3.5" />
               Powered by Base Network
-            </div>
+            </Badge>
+
             <h1 className="text-4xl font-extrabold text-foreground leading-[1.1] tracking-tight">
               Your money,
               <br />
@@ -50,24 +60,25 @@ const Landing = ({ onEnter }: LandingProps) => {
           </div>
 
           {/* Feature pills */}
-          <div className="grid grid-cols-3 gap-3 mb-10">
+          <div className="flex flex-wrap gap-6">
             {[
               { icon: Zap, label: "Instant", sub: "Transfers" },
               { icon: Shield, label: "Secure", sub: "On-chain" },
-              { icon: Smartphone, label: "Fiat", sub: "On & Off ramp" },
+              {
+                icon: Smartphone,
+                label: "Fiat Currency",
+                sub: "On & Off ramp",
+              },
             ].map(({ icon: Icon, label, sub }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card card-shadow"
-              >
+              <div key={label} className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
-                <div className="text-center">
-                  <p className="text-xs font-semibold text-foreground">
+                <div className="">
+                  <p className="text-sm font-semibold text-foreground">
                     {label}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">{sub}</p>
+                  <p className="text-xs text-muted-foreground">{sub}</p>
                 </div>
               </div>
             ))}

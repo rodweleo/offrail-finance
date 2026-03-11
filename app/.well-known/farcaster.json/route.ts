@@ -12,12 +12,10 @@ export async function GET() {
   const URL = process.env.NEXT_PUBLIC_URL as string;
   return Response.json({
     accountAssociation: {
-      accountAssociation: {
-        header: process.env.NEXT_PUBLIC_ACCOUNT_ASSOCIATION_HEADER as string,
-        payload: process.env.NEXT_PUBLIC_ACCOUNT_ASSOCIATION_PAYLOAD as string,
-        signature: process.env
-          .NEXT_PUBLIC_ACCOUNT_ASSOCIATION_SIGNATURE as string,
-      },
+      header: process.env.NEXT_PUBLIC_ACCOUNT_ASSOCIATION_HEADER as string,
+      payload: process.env.NEXT_PUBLIC_ACCOUNT_ASSOCIATION_PAYLOAD as string,
+      signature: process.env
+        .NEXT_PUBLIC_ACCOUNT_ASSOCIATION_SIGNATURE as string,
     },
     miniapp: {
       version: "1",

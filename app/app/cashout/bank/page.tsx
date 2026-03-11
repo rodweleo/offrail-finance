@@ -45,6 +45,9 @@ const CashOutBank = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [transactionReference, setTransactionReference] = useState<
+    string | null
+  >(null);
 
   const { data: supportedCurrencies, isLoading: loadingCurrencies } =
     usePaycrestSupportedCurrencies();
@@ -132,7 +135,7 @@ const CashOutBank = () => {
         return;
       }
 
-      console.log("Order response:", orderResponse.data);
+      setTransactionReference(orderResponse.data.transactionReference);
       setLoading(false);
       // setTimeout(() => {
       //   setSuccess(true);
@@ -372,6 +375,7 @@ const CashOutBank = () => {
         success={success}
         title="Confirm Bank Transfer"
         details={getConfirmDetails()}
+        transactionReference={transactionReference}
       />
     </div>
   );

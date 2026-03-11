@@ -73,6 +73,9 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [transactionReference, setTransactionReference] = useState<
+    string | null
+  >(null);
   const onSubmitRef = useRef<(() => void) | null>(null);
 
   const usdcFromKes = (kes: string) => {
@@ -162,9 +165,6 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
   const shortenAddress = (addr: string) =>
     addr.length > 14 ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : addr;
 
-  // Quick amounts
-  const quickAmounts = [100, 200, 500, 1000, 2000, 5000];
-
   // Confirmation details
   const getConfirmDetails = () => {
     if (sendType === "bulk") {
@@ -188,15 +188,7 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
         { label: "Fee", value: mode === "phone" ? "KES 0.00" : "< $0.01" },
       ];
     }
-    if (mode === "phone") {
-      return [
-        { label: "Recipient", value: phone },
-        { label: "Amount", value: `KES ${amount}` },
-        { label: "USDC Equivalent", value: `${usdcFromKes(amount)} USDC` },
-        { label: "Fee", value: "KES 0.00" },
-        { label: "Rate", value: `1 USDC = KES ${rate}` },
-      ];
-    }
+
     return [
       { label: "To Wallet", value: shortenAddress(walletAddress) },
       { label: "Amount", value: `${walletAmount} USDC` },
@@ -234,24 +226,6 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
               </p>
 
               <button
-                onClick={() => setMode("phone")}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-accent/50 border border-border hover:border-primary/40 transition-all group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Smartphone className="w-6 h-6 text-primary" />
-                </div>
-                <div className="text-left flex-1">
-                  <h4 className="text-sm font-semibold text-foreground">
-                    To Phone Number
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Send KES to any M-Pesa number
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </button>
-
-              <button
                 onClick={() => setMode("wallet")}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-accent/50 border border-border hover:border-primary/40 transition-all group"
               >
@@ -267,153 +241,6 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
                   </p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </button>
-            </div>
-          )}
-
-          {/* Phone Flow */}
-          {mode === "phone" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={handleBack}
-                  className="text-xs font-medium text-primary"
-                >
-                  ← Back
-                </button>
-                {/* Single / Bulk toggle */}
-                <div className="flex gap-1 p-0.5 rounded-lg bg-muted">
-                  <button
-                    onClick={() => setSendType("single")}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      sendType === "single"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    <User className="w-3 h-3" /> Single
-                  </button>
-                  <button
-                    onClick={() => setSendType("bulk")}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      sendType === "bulk"
-                        ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    <Users className="w-3 h-3" /> Bulk
-                  </button>
-                </div>
-              </div>
-
-              {/* Recent */}
-              {/* <RecentRecipients
-                filterType="phone"
-                onSelect={(r) => {
-                  if (sendType === "bulk") {
-                    setBulkEntries((prev) => {
-                      const empty = prev.find((e) => !e.recipient);
-                      if (empty)
-                        return prev.map((e) =>
-                          e.id === empty.id ? { ...e, recipient: r.value } : e,
-                        );
-                      return [...prev, { ...makeEntry(), recipient: r.value }];
-                    });
-                  } else {
-                    setPhone(r.value);
-                  }
-                }}
-              /> */}
-
-              {sendType === "single" ? (
-                <>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="0712 345 678"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring card-shadow text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">
-                      Amount (KES)
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) =>
-                        setAmount(e.target.value.replace(/[^0-9.]/g, ""))
-                      }
-                      className="w-full px-4 py-3.5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring card-shadow text-2xl font-bold"
-                    />
-                    {amount && (
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        ≈ {usdcFromKes(amount)} USDC
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {quickAmounts.map((qa) => (
-                      <button
-                        key={qa}
-                        onClick={() => setAmount(String(qa))}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                          amount === String(qa)
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-card border-border text-foreground hover:border-primary/40"
-                        }`}
-                      >
-                        {qa.toLocaleString()}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <BulkRecipientList
-                    entries={bulkEntries}
-                    onAdd={addEntry}
-                    onRemove={removeEntry}
-                    onChangeRecipient={changeRecipient}
-                    onChangeAmount={changeAmount}
-                    recipientPlaceholder="0712 345 678"
-                    amountLabel="KES"
-                    recipientType="tel"
-                  />
-                  {validBulkEntries.length > 0 && (
-                    <div className="rounded-xl bg-accent/50 border border-border p-3 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {validBulkEntries.length} recipient
-                        {validBulkEntries.length > 1 ? "s" : ""}
-                      </span>
-                      <span className="text-sm font-bold text-foreground">
-                        Total: KES{" "}
-                        {bulkTotal.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  )}
-                </>
-              )}
-
-              <button
-                onClick={() => setShowConfirm(true)}
-                disabled={!canContinue()}
-                className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold disabled:opacity-40 transition-opacity"
-              >
-                {sendType === "bulk"
-                  ? `Send to ${validBulkEntries.length} Recipient${validBulkEntries.length !== 1 ? "s" : ""}`
-                  : "Continue"}
               </button>
             </div>
           )}
@@ -613,6 +440,7 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
               : "Confirm Transfer"
         }
         details={getConfirmDetails()}
+        transactionReference={transactionReference}
       />
 
       <Transaction

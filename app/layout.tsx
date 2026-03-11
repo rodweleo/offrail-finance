@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Offrail Finance | Crypto to Cash",
+    title: "Offrail Finance",
     description:
       "Offrail Finance enables individuals and businesses to instantly convert cryptocurrency into local currency and supports sending bulk payouts directly to bank accounts or mobile money.",
   },
@@ -42,14 +42,14 @@ export const metadata: Metadata = {
     "base:app_id": process.env.NEXT_PUBLIC_BASE_APP_ID!,
     "fc:miniapp": JSON.stringify({
       version: "next",
-      imageUrl: "https://offrail-finance.vercel.app/embed-image",
+      imageUrl: "https://offrail-finance.vercel.app/icon.png",
       button: {
-        title: `Launch Offrail Finace`,
+        title: `Launch Offrail Finance`,
         action: {
           type: "launch_miniapp",
-          name: "Offrail Finace",
+          name: "Offrail Finance",
           url: "https://offrail-finance.vercel.app",
-          splashImageUrl: "https://offrail-finance.vercel.app/splash-image",
+          splashImageUrl: "https://offrail-finance.vercel.app/splash.png",
           splashBackgroundColor: "#000000",
         },
       },
