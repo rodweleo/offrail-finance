@@ -4,7 +4,8 @@ import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { base } from "wagmi/chains";
 import { ReactNode } from "react";
 import { UserProvider } from "@/contexts/UserContext";
-
+import { sdk } from "@farcaster/miniapp-sdk";
+import { useEffect } from "react";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getConfig } from "@/wagmi/config";
@@ -15,6 +16,10 @@ export const queryClient = new QueryClient();
 export const config = getConfig();
 
 export const Providers = ({ children }: { children: ReactNode }) => {
+  useEffect(() => {
+    sdk.actions.ready();
+  }, []);
+
   return (
     <UserProvider>
       <WagmiProvider config={config}>

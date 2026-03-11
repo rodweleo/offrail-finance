@@ -10,7 +10,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Offrail Finance | Crypto Off-Ramp & Bulk Payouts",
+  title: "Offrail Finance",
   description:
     "Offrail Finance enables individuals and businesses to instantly convert cryptocurrency into local currency and supports sending bulk payouts directly to bank accounts or mobile money.",
   keywords: [
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   ],
 
   openGraph: {
-    title: "Offrail Finance | Crypto → Cash",
+    title: "Offrail Finance",
     description:
       "Offrail Finance enables individuals and businesses to instantly convert cryptocurrency into local currency and supports sending bulk payouts directly to bank accounts or mobile money.",
     type: "website",
@@ -40,6 +40,20 @@ export const metadata: Metadata = {
   },
   other: {
     "base:app_id": process.env.NEXT_PUBLIC_BASE_APP_ID!,
+    "fc:miniapp": JSON.stringify({
+      version: "next",
+      imageUrl: "https://offrail-finance.vercel.app/embed-image",
+      button: {
+        title: `Launch Offrail Finace`,
+        action: {
+          type: "launch_miniapp",
+          name: "Offrail Finace",
+          url: "https://offrail-finance.vercel.app",
+          splashImageUrl: "https://offrail-finance.vercel.app/splash-image",
+          splashBackgroundColor: "#000000",
+        },
+      },
+    }),
   },
 };
 

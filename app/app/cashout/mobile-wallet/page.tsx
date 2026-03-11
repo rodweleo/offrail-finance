@@ -411,6 +411,8 @@ const CashOutMobile = () => {
               setLoading(false);
               setSuccess(false);
               break;
+            default:
+              break;
           }
         }}
       >
