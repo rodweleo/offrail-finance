@@ -23,7 +23,7 @@ const BottomNav = () => {
   }, [address, isConnected, isConnecting]);
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40 `}
+      className={`sticky bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40 `}
     >
       <div className="flex items-center justify-around max-w-md mx-auto py-2">
         {tabs.map((tab) => {

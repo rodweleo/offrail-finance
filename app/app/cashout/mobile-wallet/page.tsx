@@ -219,7 +219,7 @@ const CashOutMobile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="max-w-md mx-auto px-4 pt-4 pb-8">
         {/* Header with compact toggle */}
         <div className="flex items-center justify-between mb-6">

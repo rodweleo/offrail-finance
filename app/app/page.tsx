@@ -114,7 +114,7 @@ const Home = () => {
   const close = () => setActiveSheet(null);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="bg-background pb-24">
       <div className="max-w-md mx-auto px-4 pt-6 ">
         <div className="flex items-center justify-between mb-5 top-0 sticky z-50 bg-background/80 backdrop-blur-sm py-3">
           <div>

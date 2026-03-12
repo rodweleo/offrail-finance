@@ -7,7 +7,7 @@ export default function AppLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` font-sans antialiased`}>
+      <body className={`font-sans antialiased`}>
         {children}
         <BottomNav />
       </body>

@@ -8,6 +8,7 @@ import {
 } from "@coinbase/onchainkit/wallet";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface LandingProps {
   onEnter?: () => void;
@@ -87,7 +88,13 @@ const Landing = ({ onEnter }: LandingProps) => {
 
         {/* CTAs */}
         <div className="pb-10 space-y-3">
-          <ConnectWallet className="w-full bg-primary text-primary-foreground hover:bg-primary/90" />
+          <ConnectWallet
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            disconnectedLabel="Sign In"
+            onConnect={() => {
+              toast.success("Welcome to Offrail Finance");
+            }}
+          />
           <p className="text-center text-[11px] text-muted-foreground pt-1">
             By continuing, you agree to our Terms & Privacy Policy
           </p>
