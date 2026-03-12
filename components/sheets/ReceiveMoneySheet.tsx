@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Copy, Check, Link2, QrCode, Smartphone, Wallet } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import TransactionSheet from "@/components/TransactionSheet";
-import { useUser } from "@/contexts/UserContext";
 import { useAccount } from "wagmi";
 
 interface Props {
@@ -14,7 +13,6 @@ type ReceiveMode = null | "request" | "share";
 
 const ReceiveMoneySheet = ({ open, onClose }: Props) => {
   const { address } = useAccount();
-  const { profile } = useUser();
   const [mode, setMode] = useState<ReceiveMode>(null);
   const [requestAmount, setRequestAmount] = useState("");
   const [requestCurrency, setRequestCurrency] = useState<"KES" | "USDC">("KES");
@@ -43,7 +41,7 @@ const ReceiveMoneySheet = ({ open, onClose }: Props) => {
     });
   };
 
-  const paymentLink = `https://pay.app/r/${profile.walletAddress.slice(0, 8)}?amount=${requestAmount}&currency=${requestCurrency}`;
+  const paymentLink = `https://pay.app/r/${address?.slice(0, 8)}?amount=${requestAmount}&currency=${requestCurrency}`;
 
   return (
     <TransactionSheet open={open} onClose={handleClose} title="Receive Money">

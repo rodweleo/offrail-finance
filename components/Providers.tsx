@@ -21,43 +21,41 @@ export const Providers = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UserProvider>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+        >
+          <OnchainKitProvider
+            apiKey={process.env.NEXT_PUBLIC_CDP_CLIENT_API_KEY}
+            projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID}
+            chain={base}
+            miniKit={{
+              enabled: true,
+            }}
+            config={{
+              appearance: {
+                mode: "auto", // 'light' | 'dark' | 'auto'
+                name: "Offrail Finance",
+                theme: "hacker",
+                logo: "https://offrail-finance.vercel.app/icon.png",
+              },
+              wallet: {
+                display: "modal", // 'modal' | 'drawer'
+                preference: "all", // 'all' | 'smartWalletOnly' | 'eoaOnly'
+              },
+              paymaster:
+                process.env.NODE_ENV === "development"
+                  ? process.env.NEXT_TESTNET_PAYMASTER_URL
+                  : process.env.NEXT_MAINNET_PAYMASTER_URL,
+            }}
           >
-            <OnchainKitProvider
-              apiKey={process.env.NEXT_PUBLIC_CDP_CLIENT_API_KEY}
-              projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID}
-              chain={base}
-              miniKit={{
-                enabled: true,
-              }}
-              config={{
-                appearance: {
-                  mode: "auto", // 'light' | 'dark' | 'auto'
-                  name: "Offrail Finance",
-                  theme: "hacker",
-                  logo: "https://offrail-finance.vercel.app/icon.png",
-                },
-                wallet: {
-                  display: "modal", // 'modal' | 'drawer'
-                  preference: "all", // 'all' | 'smartWalletOnly' | 'eoaOnly'
-                },
-                paymaster:
-                  process.env.NODE_ENV === "development"
-                    ? process.env.NEXT_TESTNET_PAYMASTER_URL
-                    : process.env.NEXT_MAINNET_PAYMASTER_URL,
-              }}
-            >
-              {children}
-            </OnchainKitProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </UserProvider>
+            {children}
+          </OnchainKitProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };

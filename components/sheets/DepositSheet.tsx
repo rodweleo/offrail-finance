@@ -16,7 +16,6 @@ type DepositMode = null | "mpesa" | "crypto";
 
 const DepositSheet = ({ open, onClose }: Props) => {
   const { address } = useAccount();
-  const { profile } = useUser();
   const [mode, setMode] = useState<DepositMode>(null);
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
