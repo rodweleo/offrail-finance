@@ -21,10 +21,14 @@ import { useTokenFiatExchangeRate } from "@/hooks/useTokenFiatExchangeRate";
 import {
   Transaction,
   TransactionButton,
-} from "@coinbase/onchainkit/transaction";
+  LifecycleStatus,
+} from "@/components/TransactionComponent";
 import { ERC20_ABI } from "@/utils/contracts";
 import { encodeFunctionData, parseUnits } from "viem";
 import { toast } from "sonner";
+import { shortenAddress } from "@/utils";
+import { useChainId } from "wagmi";
+import { ALL_SUPPORTED_TOKENS } from "@/utils/tokens";
 
 interface Props {
   open: boolean;
@@ -42,6 +46,7 @@ const makeEntry = (): BulkEntry => ({
 });
 
 const SendMoneySheet = ({ open, onClose }: Props) => {
+  const chainId = useChainId();
   const [mode, setMode] = useState<SendMode>(null);
   const [sendType, setSendType] = useState<SendType>("single");
   // Single phone
@@ -83,6 +88,10 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
       ? (parseFloat(kes) / (!isRateLoading && rate ? rate : 0)).toFixed(2)
       : "0.00";
   };
+
+  const tokenContractDtls = ALL_SUPPORTED_TOKENS.find(
+    (t) => t.symbol === "USDC" && t.chainId === chainId,
+  );
 
   const handleConfirm = () => {
     setLoading(true);
@@ -444,25 +453,28 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
       />
 
       <Transaction
-        chainId={84532}
+        chainId={chainId}
         calls={
-          walletAddress
+          walletAddress && tokenContractDtls
             ? [
                 {
-                  to: "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as `0x${string}`,
+                  to: tokenContractDtls?.contractAddress as `0x${string}`,
                   data: encodeFunctionData({
                     abi: ERC20_ABI,
                     functionName: "transfer",
                     args: [
                       walletAddress as `0x${string}`,
-                      parseUnits(walletAmount.toString(), 6),
+                      parseUnits(
+                        walletAmount.toString(),
+                        tokenContractDtls?.decimals,
+                      ),
                     ],
                   }),
                 },
               ]
             : []
         }
-        onStatus={(status) => {
+        onStatus={(status: LifecycleStatus) => {
           switch (status.statusName) {
             case "success":
               toast.success(
@@ -485,14 +497,11 @@ const SendMoneySheet = ({ open, onClose }: Props) => {
           }
         }}
       >
-        <TransactionButton
-          className="hidden"
-          render={({ onSubmit }) => {
-            // Capture onSubmit so we can call it programmatically
-            onSubmitRef.current = onSubmit;
-            return <></>; // renders nothing
-          }}
-        />
+        {({ onSubmit }) => {
+          // Capture onSubmit so we can call it programmatically
+          onSubmitRef.current = onSubmit;
+          return <></>; // renders nothing
+        }}
       </Transaction>
       <QRScannerModal
         open={showQR}

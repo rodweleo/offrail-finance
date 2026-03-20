@@ -3,7 +3,7 @@ import {
   getPaycrestSupportedCurrencies,
   getPaycrestSupportedInstitutionsByCurrency,
 } from "@/utils/paycrest";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const usePaycrestSupportedInstitutionsByCurrency = (
@@ -66,24 +66,45 @@ export const usePaycrestExchangeRate = ({
   });
 };
 
+// export const useUserPaycrestOrders = ({ address }: { address: string }) => {
+//   return useQuery({
+//     queryKey: ["paycrestOrders", address],
+//     queryFn: async () => {
+//       if (!address) return [];
+
+//       try {
+//         const res = await axios.get(`/api/orders`, {
+//           params: { address },
+//         });
+
+//         return res.data.orders;
+//       } catch (e) {
+//         // console.error("Error fetching user orders:", e);
+//         return [];
+//       }
+//     },
+//     staleTime: 60 * 1000, // 1 minute
+//     refetchInterval: 30 * 1000,
+//   });
+// };
+
 export const useUserPaycrestOrders = ({ address }: { address: string }) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["paycrestOrders", address],
-    queryFn: async () => {
-      if (!address) return [];
-
-      try {
-        const res = await axios.get(`/api/orders`, {
-          params: { address },
-        });
-
-        return res.data.orders;
-      } catch (e) {
-        // console.error("Error fetching user orders:", e);
-        return [];
-      }
+    queryFn: async ({ pageParam }: { pageParam: string | null }) => {
+      const res = await axios.get(`/api/orders`, {
+        params: {
+          address,
+          ...(pageParam && { cursor: pageParam }),
+        },
+      });
+      return res.data; // { orders, nextCursor, hasMore }
     },
-    staleTime: 60 * 1000, // 1 minute
+    initialPageParam: null,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.nextCursor : undefined,
+    enabled: !!address, // don't run if no address
+    staleTime: 60 * 1000,
     refetchInterval: 30 * 1000,
   });
 };

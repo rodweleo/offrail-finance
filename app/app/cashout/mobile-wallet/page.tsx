@@ -21,8 +21,8 @@ import { shortenAddress } from "@/utils";
 import { ERC20_ABI } from "@/utils/contracts";
 import {
   Transaction,
-  TransactionButton,
-} from "@coinbase/onchainkit/transaction";
+  LifecycleStatus,
+} from "@/components/TransactionComponent";
 import { encodeFunctionData, parseUnits } from "viem";
 import { SUPPORTED_TOKENS } from "@/utils/tokens";
 
@@ -71,7 +71,7 @@ const CashOutMobile = () => {
 
   const currencyOptions = useMemo(
     () =>
-      (supportedCurrencies ?? []).map((c) => ({
+      (supportedCurrencies ?? []).map((c: any) => ({
         value: c.code,
         label: c.name + " - " + c.code,
       })),
@@ -81,13 +81,14 @@ const CashOutMobile = () => {
   const providerOptions = useMemo(
     () =>
       (supportedCurrencyInstitutions ?? [])
-        .filter((i) => i.type === "mobile_money")
-        .map((i) => ({ value: i.code, label: i.name })),
+        .filter((i: any) => i.type === "mobile_money")
+        .map((i: any) => ({ value: i.code, label: i.name })),
     [supportedCurrencyInstitutions],
   );
 
   const institutionName =
-    providerOptions.find((o) => o.value === selectedInstitution)?.label ?? "";
+    providerOptions.find((o: any) => o.value === selectedInstitution)?.label ??
+    "";
   const currency = selectedCurrency ?? "KES";
   const usdcAmount = amount ? (parseFloat(amount) / rate!).toFixed(2) : "0.00";
 
@@ -397,7 +398,7 @@ const CashOutMobile = () => {
       <Transaction
         chainId={chainId}
         calls={address ? calls : []}
-        onStatus={(status) => {
+        onStatus={(status: LifecycleStatus) => {
           switch (status.statusName) {
             case "success":
               toast.success(`Transaction was successful!`);
@@ -420,14 +421,11 @@ const CashOutMobile = () => {
           }
         }}
       >
-        <TransactionButton
-          className="hidden"
-          render={({ onSubmit }) => {
-            // Capture onSubmit so we can call it programmatically
-            onSubmitRef.current = onSubmit;
-            return <></>; // renders nothing
-          }}
-        />
+        {({ onSubmit }: { onSubmit: () => void }) => {
+          // Capture onSubmit so we can call it programmatically
+          onSubmitRef.current = onSubmit;
+          return <></>; // renders nothing
+        }}
       </Transaction>
     </div>
   );

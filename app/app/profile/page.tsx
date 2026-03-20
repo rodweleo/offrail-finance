@@ -13,9 +13,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import PageHeader from "@/components/PageHeader";
-import { Wallet, WalletDropdownDisconnect } from "@coinbase/onchainkit/wallet";
-import { useAccount } from "wagmi";
+import { WalletDropdownDisconnect, Wallet } from "@/components/WalletConnect";
+import { useAccount, useDisconnect } from "wagmi";
 import { shortenAddress } from "@/utils";
+import { Button } from "@/components/ui/button";
 const menuItems = [
   {
     icon: User,
@@ -32,9 +33,10 @@ const menuItems = [
 ];
 
 const Profile = () => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { disconnect } = useDisconnect();
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -60,7 +62,7 @@ const Profile = () => {
             <button
               key={i}
               onClick={() => router.push(item.path)}
-              className="w-full flex items-center gap-3 px-5 py-4 hover:bg-secondary/50 transition-colors border-b border-border last:border-0"
+              className="w-full flex items-center gap-3 px-5 py-4 hover:bg-secondary/50 transition-colors border-b border-border last:border-0 cursor-pointer"
             >
               <item.icon className="w-5 h-5 text-muted-foreground" />
               <span className="flex-1 text-sm font-medium text-foreground text-left">
@@ -89,17 +91,16 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* <button className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-destructive/10 text-destructive font-medium text-sm">
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button> */}
-
-        <Wallet className="w-full">
-          <WalletDropdownDisconnect
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-destructive/10 text-destructive font-medium text-sm"
-            text="Sign out"
-          />
-        </Wallet>
+        {isConnected && (
+          <Button
+            onClick={() => disconnect()}
+            variant="destructive"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl cursor-pointer font-medium text-sm"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign out
+          </Button>
+        )}
       </div>
     </div>
   );

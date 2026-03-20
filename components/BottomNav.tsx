@@ -7,7 +7,7 @@ import { useAccount } from "wagmi";
 
 const tabs = [
   { icon: Home, label: "Home", path: "/app" },
-  // { icon: Clock, label: "History", path: "/history" },
+  { icon: Clock, label: "History", path: "/app/history" },
   { icon: User, label: "Profile", path: "/app/profile" },
 ];
 

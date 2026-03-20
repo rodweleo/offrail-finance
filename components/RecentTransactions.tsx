@@ -19,14 +19,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const RecentTransactions = () => {
   const { address } = useAccount();
-  const { data: transactions, isLoading: isLoadingOrders } =
-    useUserPaycrestOrders({
-      address: address || "",
-    });
   const [selectedTx, setSelectedTx] = useState(null);
 
-  const recentTransactions =
-    !isLoadingOrders && transactions ? transactions.slice(0, 4) : [];
+  const { data, isLoading } = useUserPaycrestOrders({ address: address || "" });
+
+  // Only take the first 5
+  const transactions = data?.pages[0]?.orders.slice(0, 5) ?? [];
 
   return (
     <>
@@ -35,9 +33,9 @@ export const RecentTransactions = () => {
           <CardTitle className="text-lg">Recent Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoadingOrders ? (
+          {isLoading ? (
             <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <Skeleton className="w-10 h-10 rounded-xl" />
                   <div className="flex-1 space-y-1.5">
@@ -48,19 +46,7 @@ export const RecentTransactions = () => {
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {recentTransactions.map((tx) => (
-                <TransactionItem
-                  key={tx._id}
-                  transaction={tx}
-                  onClick={() => setSelectedTx(tx)}
-                />
-              ))}
-            </div>
-          )}
-
-          {!isLoadingOrders && recentTransactions.length === 0 && (
+          ) : transactions.length === 0 ? (
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -71,11 +57,22 @@ export const RecentTransactions = () => {
                   No Recent Transactions found. You can create one at any time.
                 </EmptyDescription>
               </EmptyHeader>
-              <EmptyContent>{/* <Button>Add data</Button> */}</EmptyContent>
+              <EmptyContent />
             </Empty>
+          ) : (
+            <div className="divide-y divide-border">
+              {transactions.map((tx: any) => (
+                <TransactionItem
+                  key={tx._id}
+                  transaction={tx}
+                  onClick={() => setSelectedTx(tx)}
+                />
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
+
       <TransactionDetailSheet
         transaction={selectedTx}
         open={!!selectedTx}

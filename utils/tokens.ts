@@ -73,3 +73,5 @@ export const TESTNET_TOKENS = [
     chainId: 421614,
   },
 ];
+
+export const ALL_SUPPORTED_TOKENS = [...SUPPORTED_TOKENS, ...TESTNET_TOKENS];

@@ -59,7 +59,7 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-3 py-3 w-full text-left hover:bg-secondary/30 -mx-1 px-1 rounded-xl transition-colors"
+      className="flex items-center gap-3 py-3 w-full text-left hover:bg-secondary/30 -mx-1 px-1 rounded-xl transition-colors cursor-pointer"
     >
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}

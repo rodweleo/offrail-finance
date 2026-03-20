@@ -3,8 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/Providers";
-import { SafeArea } from "@coinbase/onchainkit/minikit";
-import "@coinbase/onchainkit/styles.css";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -66,10 +64,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans antialiased`}>
         <Providers>
-          <SafeArea>
-            {children}
-            <Toaster />
-          </SafeArea>
+          {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

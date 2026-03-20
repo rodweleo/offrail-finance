@@ -1,11 +1,7 @@
 "use client";
 
 import { Shield, Zap, ArrowRight, Globe, Smartphone } from "lucide-react";
-import {
-  ConnectWallet,
-  Wallet,
-  WalletDropdownDisconnect,
-} from "@coinbase/onchainkit/wallet";
+import { ConnectWallet } from "./WalletConnect";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -89,7 +85,7 @@ const Landing = ({ onEnter }: LandingProps) => {
         {/* CTAs */}
         <div className="pb-10 space-y-3">
           <ConnectWallet
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full"
             disconnectedLabel="Sign In"
             onConnect={() => {
               toast.success("Welcome to Offrail Finance");

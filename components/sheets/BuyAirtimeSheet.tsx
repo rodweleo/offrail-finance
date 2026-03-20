@@ -8,12 +8,7 @@ import { encodeFunctionData, parseUnits } from "viem";
 import {
   LifecycleStatus,
   Transaction,
-  TransactionButton,
-  TransactionSponsor,
-  TransactionStatus,
-  TransactionStatusAction,
-  TransactionStatusLabel,
-} from "@coinbase/onchainkit/transaction";
+} from "@/components/TransactionComponent";
 import { ERC20_ABI } from "@/utils/contracts";
 
 interface Props {
@@ -190,19 +185,11 @@ const BuyAirtimeSheet = ({ open, onClose }: Props) => {
 
           {/* { to: Hex; data?: Hex; value?: bigint } */}
           <Transaction chainId={84532} calls={calls} onStatus={handleOnStatus}>
-            <TransactionButton
-              className="hidden"
-              render={({ onSubmit }) => {
-                // Capture onSubmit so we can call it programmatically
-                onSubmitRef.current = onSubmit;
-                return <></>; // renders nothing
-              }}
-            />
-            <TransactionSponsor />
-            <TransactionStatus>
-              <TransactionStatusLabel />
-              <TransactionStatusAction />
-            </TransactionStatus>
+            {({ onSubmit }: { onSubmit: () => void }) => {
+              // Capture onSubmit so we can call it programmatically
+              onSubmitRef.current = onSubmit;
+              return <></>; // renders nothing
+            }}
           </Transaction>
         </div>
       </TransactionSheet>
