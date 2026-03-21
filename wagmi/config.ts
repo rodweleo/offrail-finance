@@ -1,6 +1,12 @@
-import { http, cookieStorage, createConfig, createStorage } from "wagmi";
+import {
+  http,
+  cookieStorage,
+  createConfig,
+  createStorage,
+  injected,
+} from "wagmi";
 import { base, baseSepolia, mainnet } from "viem/chains";
-import { coinbaseWallet, metaMask } from "wagmi/connectors";
+import { baseAccount, coinbaseWallet, metaMask } from "wagmi/connectors";
 import { Attribution } from "ox/erc8021";
 
 const DATA_SUFFIX = Attribution.toDataSuffix({
@@ -26,6 +32,10 @@ export function getConfig() {
   return createConfig({
     chains: chains,
     connectors: [
+      injected(),
+      baseAccount({
+        appName: "Offrail Finance",
+      }),
       coinbaseWallet({
         appName: "Offrail Finance",
         preference: "smartWalletOnly",
