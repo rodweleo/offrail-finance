@@ -106,9 +106,6 @@ export const TransactionButton = ({
   render,
   children,
 }: TransactionButtonProps) => {
-  // This component is used as a render-prop pattern connector
-  // The actual submit handler is captured by Transaction component
-  // through the ref in SendMoneySheet
   if (render) {
     return render({ onSubmit: () => {} });
   }
