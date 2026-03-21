@@ -1,6 +1,11 @@
 import { http, cookieStorage, createConfig, createStorage } from "wagmi";
 import { base, baseSepolia, mainnet } from "viem/chains";
 import { coinbaseWallet, metaMask } from "wagmi/connectors";
+import { Attribution } from "ox/erc8021";
+
+const DATA_SUFFIX = Attribution.toDataSuffix({
+  codes: [process.env.NEXT_BUILDER_CODE!],
+});
 
 const IS_TESTNET = process.env.NODE_ENV === "development";
 
@@ -28,6 +33,7 @@ export function getConfig() {
       }),
       metaMask(),
     ],
+    dataSuffix: DATA_SUFFIX,
     storage: createStorage({
       storage: cookieStorage,
     }),
