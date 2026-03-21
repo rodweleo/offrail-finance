@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       reference,
     };
 
-    console.log(JSON.stringify(options, null, 2));
+    console.log(`Creating Paycrest order with options:`, options);
 
     const paycrestResponse = await axios.post(
       `${process.env.NEXT_PUBLIC_PAYCREST_BASE_URL}/sender/orders`,
@@ -62,6 +62,10 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await paycrestResponse.data.data;
+
+    console.log("Paycrest order created successfully:", order);
+
+    console.log("Storing order details in the database...");
 
     // store the details in the database for later retrieval and processing
     const ordersCollection = getPaycrestOrdersCollection();
@@ -90,6 +94,8 @@ export async function POST(req: NextRequest) {
       updatedAt: new Date(),
       type,
     });
+
+    console.log("Order details stored in the database successfully.");
 
     // Return the receive address for the user to send USDC to
     return NextResponse.json(

@@ -22,9 +22,10 @@ import { ERC20_ABI } from "@/utils/contracts";
 import {
   Transaction,
   LifecycleStatus,
+  TransactionButton,
 } from "@/components/TransactionComponent";
 import { encodeFunctionData, parseUnits } from "viem";
-import { SUPPORTED_TOKENS } from "@/utils/tokens";
+import { ALL_SUPPORTED_TOKENS, SUPPORTED_TOKENS } from "@/utils/tokens";
 
 type SendType = "single" | "bulk";
 
@@ -123,10 +124,7 @@ const CashOutMobile = () => {
           institution: selectedInstitution,
           accountIdentifier: sendType === "single" ? phone : "",
           accountName: sendType === "single" ? phone : "",
-          memo:
-            sendType === "single"
-              ? `Cashout to ${phone}`
-              : "Bulk cashout via Offrail Finance",
+          memo: sendType === "single" ? `Cashout to ${phone}` : "Bulk cashout",
           currency,
         },
         returnAddress: address,
@@ -157,29 +155,33 @@ const CashOutMobile = () => {
         Number(orderDtls.senderFee) +
         Number(orderDtls.transactionFee);
 
-      setCalls([
-        {
-          to: (SUPPORTED_TOKENS.find((token) => token.chainId === chainId)
-            ?.contractAddress ||
-            SUPPORTED_TOKENS[0].contractAddress) as `0x${string}`,
-          data: encodeFunctionData({
-            abi: ERC20_ABI,
-            functionName: "transfer",
-            args: [
-              orderDtls.receiveAddress as `0x${string}`,
-              parseUnits(totalAmount.toString(), 6),
-            ],
-          }),
-        },
-      ]);
+      const tokenContractDtls = ALL_SUPPORTED_TOKENS.find(
+        (token) => token.symbol === "USDC" && token.chainId === chainId,
+      );
+
+      if (tokenContractDtls) {
+        setCalls([
+          {
+            to: tokenContractDtls?.contractAddress as `0x${string}`,
+            data: encodeFunctionData({
+              abi: ERC20_ABI,
+              functionName: "transfer",
+              args: [
+                orderDtls.receiveAddress as `0x${string}`,
+                parseUnits(totalAmount.toString(), tokenContractDtls.decimals),
+              ],
+            }),
+          },
+        ]);
+      }
 
       onSubmitRef.current?.();
     } catch (e) {
       console.error("Cashout error:", e);
-      // toast.error(
-      //   e.response?.data?.error ||
-      //     "An error occurred during cashout. Please try again.",
-      // );
+      toast.error(
+        e.response?.data?.error ||
+          "An error occurred during cashout. Please try again.",
+      );
       setLoading(false);
     }
   };
@@ -421,11 +423,14 @@ const CashOutMobile = () => {
           }
         }}
       >
-        {({ onSubmit }: { onSubmit: () => void }) => {
-          // Capture onSubmit so we can call it programmatically
-          onSubmitRef.current = onSubmit;
-          return <></>; // renders nothing
-        }}
+        <TransactionButton
+          className="hidden"
+          render={({ onSubmit }) => {
+            // Capture onSubmit so we can call it programmatically
+            onSubmitRef.current = onSubmit;
+            return <></>;
+          }}
+        />
       </Transaction>
     </div>
   );
