@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useCallback } from "react";
-import { useSendTransaction } from "wagmi";
+import { useChainId, useSendTransaction } from "wagmi";
 
 export interface TransactionCall {
   to: `0x${string}`;
@@ -55,7 +55,7 @@ export const Transaction = ({
         to: call.to,
         data: call.data,
         value: call.value,
-        chainId: chainId as 1 | 84532 | 8453,
+        chainId: chainId as 1 | 84532 | 8453 | undefined,
       });
 
       onStatus({
@@ -109,7 +109,10 @@ export const TransactionButton = ({
   // This component is used as a render-prop pattern connector
   // The actual submit handler is captured by Transaction component
   // through the ref in SendMoneySheet
-  return null;
+  if (render) {
+    return render({ onSubmit: () => {} });
+  }
+  return children;
 };
 
 export type { LifecycleStatus as TransactionLifecycleStatus };
