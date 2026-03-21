@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, createContext, useContext } from "react";
 import { useChainId, useSendTransaction } from "wagmi";
 
 export interface TransactionCall {
@@ -12,6 +12,25 @@ export interface TransactionCall {
 export type LifecycleStatus = {
   statusName: "idle" | "transactionPending" | "success" | "error";
   statusData: any;
+};
+
+// Create context for passing handleSubmit to children
+interface TransactionContextType {
+  onSubmit: () => void;
+}
+
+const TransactionContext = createContext<TransactionContextType | undefined>(
+  undefined,
+);
+
+const useTransaction = () => {
+  const context = useContext(TransactionContext);
+  if (!context) {
+    throw new Error(
+      "useTransaction must be used within a Transaction component",
+    );
+  }
+  return context;
 };
 
 interface TransactionProps {
@@ -77,19 +96,16 @@ export const Transaction = ({
     }
   }, [calls, chainId, sendTransactionAsync, onStatus]);
 
-  // Expose the submit function to children
-  const contextValue = {
-    onSubmit: handleSubmit,
-  };
-
   return (
-    <div data-transaction-component>
-      {typeof children === "function"
-        ? (children as (props: { onSubmit: () => void }) => ReactNode)(
-            contextValue,
-          )
-        : children}
-    </div>
+    <TransactionContext.Provider value={{ onSubmit: handleSubmit }}>
+      <div data-transaction-component>
+        {typeof children === "function"
+          ? (children as (props: { onSubmit: () => void }) => ReactNode)({
+              onSubmit: handleSubmit,
+            })
+          : children}
+      </div>
+    </TransactionContext.Provider>
   );
 };
 
@@ -106,8 +122,10 @@ export const TransactionButton = ({
   render,
   children,
 }: TransactionButtonProps) => {
+  const { onSubmit } = useTransaction();
+
   if (render) {
-    return render({ onSubmit: () => {} });
+    return render({ onSubmit });
   }
   return children;
 };
