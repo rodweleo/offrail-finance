@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { ArrowLeft, User, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -69,6 +69,13 @@ const CashOutMobile = () => {
     token: "USDC",
     currency: selectedCurrency!,
   });
+
+  // Trigger transaction when calls are populated
+  useEffect(() => {
+    if (calls.length > 0 && onSubmitRef.current) {
+      onSubmitRef.current();
+    }
+  }, [calls]);
 
   const currencyOptions = useMemo(
     () =>
@@ -160,7 +167,7 @@ const CashOutMobile = () => {
       );
 
       if (tokenContractDtls) {
-        setCalls([
+        const transactionCalls = [
           {
             to: tokenContractDtls?.contractAddress as `0x${string}`,
             data: encodeFunctionData({
@@ -172,10 +179,13 @@ const CashOutMobile = () => {
               ],
             }),
           },
-        ]);
+        ];
+        // This will trigger the useEffect which calls onSubmitRef.current()
+        setCalls(transactionCalls);
+      } else {
+        toast.error("Token contract details not found");
+        setLoading(false);
       }
-
-      onSubmitRef.current?.();
     } catch (e) {
       console.error("Cashout error:", e);
       toast.error(

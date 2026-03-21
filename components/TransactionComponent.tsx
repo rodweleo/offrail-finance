@@ -53,7 +53,7 @@ export const Transaction = ({
   const { sendTransactionAsync } = useSendTransaction();
 
   const handleSubmit = useCallback(async () => {
-    if (calls.length === 0) {
+    if (!calls || calls.length === 0) {
       onStatus({
         statusName: "error",
         statusData: { message: "No calls to execute", error: "{}" },
@@ -62,33 +62,52 @@ export const Transaction = ({
     }
 
     try {
+      // Set pending state immediately
       onStatus({
         statusName: "transactionPending",
         statusData: {},
       });
 
-      // Execute the first call (typically for simple transfers)
-      const call = calls[0];
+      // Execute each call and collect hashes
+      const hashes: string[] = [];
 
-      const hash = await sendTransactionAsync({
-        to: call.to,
-        data: call.data,
-        value: call.value,
-        chainId: chainId as 1 | 84532 | 8453 | undefined,
-      });
+      for (const call of calls) {
+        try {
+          const hash = await sendTransactionAsync({
+            to: call.to,
+            data: call.data,
+            value: call.value || undefined,
+            chainId: chainId as 1 | 84532 | 8453 | undefined,
+          });
+          hashes.push(hash);
+        } catch (callError: any) {
+          console.error("Error sending individual transaction:", callError);
+          throw callError;
+        }
+      }
 
+      // All transactions sent successfully
       onStatus({
         statusName: "success",
-        statusData: { hash },
+        statusData: {
+          transactionHash: hashes[0],
+          transactionHashes: hashes,
+        },
       });
     } catch (error: any) {
+      console.error("Transaction error:", error);
+
+      const errorMessage = error?.message || "Transaction failed";
+      const shortMessage =
+        error?.shortMessage || error?.message || "Unknown error";
+
       onStatus({
         statusName: "error",
         statusData: {
-          message: error.message || "Transaction failed",
+          message: errorMessage,
           error: JSON.stringify({
             cause: {
-              shortMessage: error.message || "Unknown error",
+              shortMessage: shortMessage,
             },
           }),
         },
